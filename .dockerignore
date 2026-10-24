@@ -1,0 +1,9 @@
+.git
+.vs
+.env
+.env.*
+node_modules
+**/node_modules
+backend/.env
+backend/db.json
+*.log
