@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Search v2</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <svg class="logo-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="9" stroke="currentColor" stroke-width="2.5"/>
+          <line x1="21" y1="21" x2="28" y2="28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="14" cy="14" r="4" fill="currentColor" opacity="0.3"/>
+        </svg>
+        <span class="logo-text">Smart<strong>Search</strong> <span class="logo-badge">v2</span></span>
+      </div>
+
+      <div class="header-actions">
+        <button id="stats-btn" class="icon-btn" title="View Statistics" aria-label="View statistics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Stats
+        </button>
+        <button id="history-toggle-btn" class="icon-btn" title="Toggle History Sidebar" aria-label="Toggle history sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.85"/>
+          </svg>
+          History
+        </button>
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle light/dark mode" aria-label="Toggle theme">
+          <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── DEMO MODE BANNER ───────────────────────────────────────── -->
+  <div id="demo-banner" class="demo-banner hidden" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span><strong>Demo Mode:</strong> No Google API key configured. Showing demo results. Add <code>GOOGLE_API_KEY</code> and <code>GOOGLE_SEARCH_ENGINE_ID</code> to your <code>.env</code> file for live results.</span>
+  </div>
+
+  <!-- ── MAIN LAYOUT ────────────────────────────────────────────── -->
+  <div class="layout">
+
+    <!-- ── MAIN CONTENT ───────────────────────────────────────── -->
+    <main class="main-content" id="main-content">
+
+      <!-- Hero / Search Section -->
+      <section class="hero-section" aria-label="Search">
+        <h1 class="hero-title">Intelligent Search with<br /><span class="accent">Trust Scoring</span></h1>
+        <p class="hero-subtitle">Results ranked by credibility. Conflicts flagged. Best answer surfaced.</p>
+
+        <!-- Search Form -->
+        <div class="search-wrapper" role="search">
+          <div class="search-input-group">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              id="search-input"
+              class="search-input"
+              placeholder="Search anything..."
+              autocomplete="off"
+              aria-label="Search query"
+              aria-autocomplete="list"
+              aria-controls="autocomplete-dropdown"
+              aria-expanded="false"
+            />
+            <button id="search-clear-btn" class="search-clear-btn hidden" type="button" title="Clear query" aria-label="Clear search query">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+            <kbd class="search-kbd-hint" id="search-kbd-hint" title="Press / to focus search">/</kbd>
+            <button id="search-btn" class="search-btn" type="button" aria-label="Search">
+              <span>Search</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Autocomplete Dropdown -->
+          <ul
+            id="autocomplete-dropdown"
+            class="autocomplete-dropdown hidden"
+            role="listbox"
+            aria-label="Search suggestions"
+          ></ul>
+        </div>
+
+        <!-- Example Chips -->
+        <div class="example-chips" role="group" aria-label="Example searches">
+          <span class="chips-label">Try:</span>
+          <button class="chip" data-query="How to apply for Driving License?">Driving License</button>
+          <button class="chip" data-query="Passport application online">Passport Seva</button>
+          <button class="chip" data-query="What is climate change?">What is climate change?</button>
+          <button class="chip" data-query="Who invented the internet?">Who invented the internet?</button>
+          <button class="chip" data-query="What is AI?">What is AI?</button>
+          <button class="chip" data-query="How does vaccine work?">How does vaccine work?</button>
+        </div>
+
+        <!-- Connected Providers Indicator (Hidden as requested) -->
+        <div class="providers-bar hidden" id="providers-bar" style="display: none;" aria-hidden="true">
+          <span class="providers-label">
+            <span class="pulse-dot"></span> Active APIs:
+          </span>
+          <div class="providers-list" id="providers-list">
+            <span class="provider-pill">Wikipedia</span>
+            <span class="provider-pill">DuckDuckGo</span>
+            <span class="provider-pill">Hacker News</span>
+            <span class="provider-pill">Crossref</span>
+            <span class="provider-pill">Stack Overflow</span>
+            <span class="provider-pill">ArXiv</span>
+            <span class="provider-pill">Wikinews</span>
+          </div>
+        </div>
+
+        <!-- Seed Button -->
+        <div class="seed-row">
+          <button id="seed-btn" class="seed-btn" type="button" aria-label="Load demo data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            Load Demo Data
+          </button>
+        </div>
+      </section>
+
+      <!-- Spinner -->
+      <div id="spinner" class="spinner-wrapper hidden" aria-live="polite" aria-label="Loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <span class="spinner-text">Searching verified sources...</span>
+      </div>
+
+      <!-- Error message -->
+      <div id="error-msg" class="error-msg hidden" role="alert" aria-live="assertive"></div>
+
+      <!-- Results Section -->
+      <section id="results-section" class="results-section hidden" aria-label="Search results">
+
+        <!-- Conflict Banner -->
+        <div id="conflict-banner" class="conflict-banner hidden" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="conflict-banner-text">
+            <strong>Conflicting Sources Detected</strong>
+            <span id="conflict-banner-detail">Some results contain contradictory claims. Review carefully.</span>
+          </div>
+        </div>
+
+        <!-- Verified Answer Panel -->
+        <div id="verified-panel" class="verified-panel hidden" aria-label="Verified answer">
+          <div class="verified-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Verified Answer</span>
+            <span id="verified-source-badge" class="verified-source-badge"></span>
+            <span id="verified-confidence-label" class="confidence-label"></span>
+            <button id="copy-answer-btn" class="copy-answer-btn" type="button" title="Copy answer to clipboard" aria-label="Copy verified answer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div id="verified-content" class="verified-content"></div>
+
+          <!-- Official Portal Spotlight Card -->
+          <div id="official-portal-card" class="official-portal-card hidden">
+            <div class="portal-badge-row">
+              <span class="portal-tag">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+                <span id="portal-badge-text">Official Government Portal</span>
+              </span>
+              <span class="portal-domain-chip" id="portal-domain-chip"></span>
+            </div>
+            <h3 class="portal-title" id="portal-title"></h3>
+            <p class="portal-desc" id="portal-desc"></p>
+            <div class="portal-actions">
+              <a id="portal-primary-link" href="#" target="_blank" rel="noopener noreferrer" class="portal-btn">
+                <span>Visit Official Portal</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+                </svg>
+              </a>
+            </div>
+            <div id="portal-sublinks" class="portal-sublinks"></div>
+          </div>
+
+          <!-- Key Points / Steps -->
+          <div id="verified-key-points" class="verified-key-points hidden">
+            <h4 class="key-points-title">Key Information & Steps:</h4>
+            <ul id="key-points-list" class="key-points-list"></ul>
+          </div>
+
+          <div class="confidence-bar-wrapper" aria-label="Confidence score">
+            <div class="confidence-bar-track">
+              <div id="confidence-bar-fill" class="confidence-bar-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" title="Trust score"></div>
+            </div>
+            <span id="confidence-bar-label" class="confidence-bar-label">0 / 100</span>
+          </div>
+          <div id="verified-source-footer" class="verified-source-footer"></div>
+        </div>
+
+        <!-- Results Header & Category Filter Tabs -->
+        <div class="results-header">
+          <div class="results-header-top">
+            <h2 id="results-count-heading" class="results-count-heading"></h2>
+            <div class="results-controls">
+              <div class="sort-control">
+                <label for="results-sort-select" class="sort-label">Sort:</label>
+                <select id="results-sort-select" class="sort-select" aria-label="Sort search results">
+                  <option value="composite">Best Match</option>
+                  <option value="trust">Highest Trust</option>
+                  <option value="relevance">Most Relevant</option>
+                  <option value="title">Title (A-Z)</option>
+                </select>
+              </div>
+              <button id="export-results-btn" class="export-results-btn" type="button" title="Export results as Markdown" aria-label="Export results as Markdown">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Export</span>
+              </button>
+            </div>
+            <div id="sources-summary-bar" class="sources-summary-bar" aria-label="Filter by source"></div>
+          </div>
+          <div class="category-tabs" id="category-tabs" role="tablist" aria-label="Filter results by category">
+            <button class="cat-tab active" data-category="all" role="tab" aria-selected="true">All Sources</button>
+            <button class="cat-tab" data-category="web" role="tab" aria-selected="false">Web & Search</button>
+            <button class="cat-tab" data-category="encyclopedia" role="tab" aria-selected="false">Encyclopedia</button>
+            <button class="cat-tab" data-category="academic" role="tab" aria-selected="false">Academic & Science</button>
+            <button class="cat-tab" data-category="tech" role="tab" aria-selected="false">Tech & Code</button>
+            <button class="cat-tab" data-category="news" role="tab" aria-selected="false">News</button>
+          </div>
+        </div>
+        <div id="results-container" class="results-grid" role="list" aria-label="Search results list"></div>
+      </section>
+
+    </main>
+
+    <!-- ── HISTORY SIDEBAR ────────────────────────────────────── -->
+    <aside id="history-sidebar" class="history-sidebar" aria-label="Search history">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Search History</h2>
+        <button id="close-sidebar-btn" class="icon-btn small" aria-label="Close history sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-filter">
+        <input
+          type="text"
+          id="history-filter-input"
+          class="history-filter-input"
+          placeholder="Filter history..."
+          aria-label="Filter search history"
+        />
+      </div>
+
+      <div id="history-list-container" class="history-list-container">
+        <p class="history-empty" id="history-empty-msg">No history yet.</p>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="clear-history-btn" class="danger-btn" type="button" aria-label="Clear all history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+          Clear All History
+        </button>
+      </div>
+    </aside>
+
+  </div><!-- /.layout -->
+
+  <!-- ── STATS MODAL ────────────────────────────────────────────── -->
+  <div id="stats-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="stats-modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="stats-modal-title" class="modal-title">Search Statistics</h2>
+        <button id="close-stats-btn" class="icon-btn small" aria-label="Close statistics modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div id="stats-content" class="stats-content">
+        <p class="loading-text">Loading statistics...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

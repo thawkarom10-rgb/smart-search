@@ -1,0 +1,10 @@
+{
+  "name": "smart-search-v2",
+  "version": "1.0.0",
+  "description": "Smart Search v2",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "npm --prefix backend run test:stale-search"
+  }
+}

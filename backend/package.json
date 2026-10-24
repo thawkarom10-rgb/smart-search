@@ -1,0 +1,22 @@
+{
+  "name": "smart-search-v2",
+  "version": "1.0.0",
+  "description": "Smart Search v2 - trust-scored search with conflict detection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/unit.test.js",
+    "test:stale-search": "node tests/stale-search.test.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "express-rate-limit": "^7.0.0",
+    "lowdb": "1.0.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
